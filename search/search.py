@@ -85,8 +85,25 @@ def depthFirstSearch(problem):
     print "Start:", problem.getStartState()
     print "Is the start a goal?", problem.isGoalState(problem.getStartState())
     print "Start's successors:", problem.getSuccessors(problem.getStartState())
+
+    comandos:
+    1) python pacman.py -l tinyMaze -p SearchAgent --frameTime 0
+    2) python pacman.py -l mediumMaze -p SearchAgent --frameTime 0
+    3) python pacman.py -l bigMaze -z .5 -p SearchAgent --frameTime 0
     """
+
     "*** YOUR CODE HERE ***"
+    start_state = problem.getStartState()
+    fringe = util.Stack()
+    visited = []
+    fringe.push(start_state)
+
+    while not fringe.isEmpty():
+        state = fringe.pop()
+        successors = problem.getSuccessors(state)
+        for s in successors:
+            print problem.getSuccessors(s[0])
+
     util.raiseNotDefined()
 
 
