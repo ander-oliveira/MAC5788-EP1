@@ -94,23 +94,55 @@ def depthFirstSearch(problem):
 
     "*** YOUR CODE HERE ***"
     start_state = problem.getStartState()
-    fringe = util.Stack()
-    visited = []
-    fringe.push(start_state)
+    frontier = util.Stack()
 
-    while not fringe.isEmpty():
-        state = fringe.pop()
+    if problem.isGoalState(start_state):
+        return []
+    frontier.push((start_state, [], 0))
+    explored = []
+
+    while not frontier.isEmpty():
+        state, action, cost = frontier.pop()
+        explored.append(state)
         successors = problem.getSuccessors(state)
         for s in successors:
-            print problem.getSuccessors(s[0])
-
-    util.raiseNotDefined()
-
+            st, act, cst = s
+            if st not in explored:
+                if problem.isGoalState(st):
+                    return action + [act]
+                else:
+                    explored.append(st)
+                    frontier.push((st, action + [act], cst))
 
 def breadthFirstSearch(problem):
-    """Search the shallowest nodes in the search tree first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    """
+    Search the shallowest nodes in the search tree first.
+
+    comandos:
+    1) python pacman.py -l mediumMaze -p SearchAgent -a fn=bfs
+    2) python pacman.py -l bigMaze -p SearchAgent -a fn=bfs -z .5
+
+    """
+    start_state = problem.getStartState()
+    frontier = util.Queue()
+
+    if problem.isGoalState(start_state):
+        return []
+    frontier.push((start_state, [], 0))
+    explored = []
+
+    while not frontier.isEmpty():
+        state, action, cost = frontier.pop()
+        explored.append(state)
+        successors = problem.getSuccessors(state)
+        for s in successors:
+            st, act, cst = s
+            if st not in explored:
+                if problem.isGoalState(st):
+                    return action + [act]
+                else:
+                    explored.append(st)
+                    frontier.push((st, action + [act], cst))
 
 
 def uniformCostSearch(problem):
