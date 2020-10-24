@@ -98,21 +98,18 @@ def depthFirstSearch(problem):
 
     if problem.isGoalState(start_state):
         return []
-    frontier.push((start_state, [], 0))
+
     explored = []
+    frontier.push((start_state, []))
 
     while not frontier.isEmpty():
-        state, action, cost = frontier.pop()
-        explored.append(state)
-        successors = problem.getSuccessors(state)
-        for s in successors:
-            st, act, cst = s
-            if st not in explored:
-                if problem.isGoalState(st):
-                    return action + [act]
-                else:
-                    explored.append(st)
-                    frontier.push((st, action + [act], cst))
+        state, action = frontier.pop()
+        if state not in explored:
+            explored.append(state)
+            if problem.isGoalState(state):
+                return action
+            for st, act, cst in problem.getSuccessors(state):
+                frontier.push((st, action + [act]))
 
 def breadthFirstSearch(problem):
     """
@@ -121,34 +118,49 @@ def breadthFirstSearch(problem):
     comandos:
     1) python pacman.py -l mediumMaze -p SearchAgent -a fn=bfs
     2) python pacman.py -l bigMaze -p SearchAgent -a fn=bfs -z .5
-
     """
     start_state = problem.getStartState()
     frontier = util.Queue()
+    explored = []
 
     if problem.isGoalState(start_state):
         return []
-    frontier.push((start_state, [], 0))
-    explored = []
 
+    frontier.push((start_state, []))
     while not frontier.isEmpty():
-        state, action, cost = frontier.pop()
-        explored.append(state)
-        successors = problem.getSuccessors(state)
-        for s in successors:
-            st, act, cst = s
-            if st not in explored:
-                if problem.isGoalState(st):
-                    return action + [act]
-                else:
-                    explored.append(st)
-                    frontier.push((st, action + [act], cst))
+        state, action = frontier.pop()
+        if state not in explored:
+            explored.append(state)
+            if problem.isGoalState(state):
+                return action
+            for st, act, cst in problem.getSuccessors(state):
+                frontier.push((st, action + [act]))
 
 
 def uniformCostSearch(problem):
-    """Search the node of least total cost first."""
+    """Search the node of least total cost first.
+
+    Comando:
+    1) python pacman.py -l mediumMaze -p SearchAgent -a fn=ucs
+
+    """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    start_state = problem.getStartState()
+    frontier = util.PriorityQueue()
+    explored = []
+
+    if problem.isGoalState(start_state):
+        return []
+
+    frontier.push((start_state, [], 0), 0)
+    while not frontier.isEmpty():
+        state, action, cost = frontier.pop()
+        if state not in explored:
+            explored.append(state)
+            if problem.isGoalState(state):
+                return action
+            for st, act, cst in problem.getSuccessors(state):
+                frontier.push((st, action + [act], cost + cst), cost + cst)
 
 
 def nullHeuristic(state, problem=None):
@@ -160,9 +172,29 @@ def nullHeuristic(state, problem=None):
 
 
 def aStarSearch(problem, heuristic=nullHeuristic):
-    """Search the node that has the lowest combined cost and heuristic first."""
+    """Search the node that has the lowest combined cost and heuristic first.
+
+    Comando:
+    1) python pacman.py -l bigMaze -z .5 -p SearchAgent -a fn=astar,heuristic=manhattanHeuristic
+
+    """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    start_state = problem.getStartState()
+    frontier = util.PriorityQueue()
+    explored = []
+
+    if problem.isGoalState(start_state):
+        return []
+
+    frontier.push((start_state, [], 0), 0)
+    while not frontier.isEmpty():
+        state, action, cost = frontier.pop()
+        if state not in explored:
+            explored.append(state)
+            if problem.isGoalState(state):
+                return action
+            for st, act, cst in problem.getSuccessors(state):
+                frontier.push((st, action + [act], cost + cst), (cost + cst) + heuristic(st, problem))
 
 
 def learningRealTimeAStar(problem, heuristic=nullHeuristic):
