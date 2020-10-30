@@ -292,22 +292,20 @@ class CornersProblem(search.SearchProblem):
         """
         "*** YOUR CODE HERE ***"
         return (self.startingPosition, [])
-        #util.raiseNotDefined()
 
     def isGoalState(self, state):
         """
         Returns whether this search state is a goal state of the problem.
         """
         "*** YOUR CODE HERE ***"
-        position = state[0]
-        v_corners = state[1]
-        if position in self.corners:
-            if position not in v_corners:
-                v_corners.append(position)
-            return len(v_corners) == 4
-        else:
-            return False
-        #util.raiseNotDefined()
+        node = state[0]
+        explored_corners = state[1]
+
+        if node in self.corners:
+            if not node in explored_corners:
+                explored_corners.append(node)
+            return len(explored_corners) == 4
+        return False
 
     def getSuccessors(self, state):
         """
@@ -319,8 +317,9 @@ class CornersProblem(search.SearchProblem):
             state, 'action' is the action required to get there, and 'stepCost'
             is the incremental cost of expanding to that successor
         """
+
         x, y = state[0]
-        v_corners = state[1]
+        explored_corners = state[1]
         successors = []
         for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
             # Add a successor state to the successor list if the action is legal
@@ -330,18 +329,18 @@ class CornersProblem(search.SearchProblem):
             #   nextx, nexty = int(x + dx), int(y + dy)
             #   hitsWall = self.walls[nextx][nexty]
 
+            "*** YOUR CODE HERE ***"
             dx, dy = Actions.directionToVector(action)
             nextx, nexty = int(x + dx), int(y + dy)
-            next_node = (nextx, nexty)
             hitsWall = self.walls[nextx][nexty]
             if not hitsWall:
-                sucessor_v_corners = list(v_corners)
-                if next_node in self.corners:
-                    if next_node not in sucessor_v_corners:
-                        sucessor_v_corners.append(next_node)
-                successor = ((next_node, sucessor_v_corners), action, 1)
+                sucessor_explored_corners = list(explored_corners)
+                next_state = (nextx, nexty)
+                if next_state in self.corners:
+                    if next_state not in sucessor_explored_corners:
+                        sucessor_explored_corners.append(next_state)
+                successor = ((next_state, sucessor_explored_corners), action, 1)
                 successors.append(successor)
-
         self._expanded += 1 # DO NOT CHANGE
         return successors
 
@@ -375,22 +374,24 @@ def cornersHeuristic(state, problem):
     corners = problem.corners # These are the corner coordinates
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
 
-    node = state[0]
-    v_corners = state[1]
-    h_sum = 0
+    "*** YOUR CODE HERE ***"
+    explored_corners = state[1]
+    corners_to_visit = []
+    for c in corners:
+        if c not in explored_corners:
+            corners_to_visit.append(c)
 
-    u_v_corner = []
-    for i in range(4):
-        if corners[i] not in v_corners:
-            u_v_corner.append(corners[i])
-
-    current_pos = node
-    while(len(u_v_corner)!=0):
-        distance, corner = min( [(util.manhattanDistance(current_pos ,corner),corner) for corner in u_v_corner] )
-        h_sum = h_sum + distance
-        current_pos = corner
-        u_v_corner.remove(corner)
-    return h_sum
+    # While not all corners are visited find via manhattanDistance
+    #  the most efficient path for each corner
+    total_cost = 0
+    coordinate = state[0]
+    actual_point = coordinate
+    while corners_to_visit:
+        heuristic, c = min([(util.manhattanDistance(actual_point, c), c) for c in corners_to_visit])
+        corners_to_visit.remove(c)
+        actual_point = c
+        total_cost += heuristic
+    return total_cost
 
 
 class AStarCornersAgent(SearchAgent):

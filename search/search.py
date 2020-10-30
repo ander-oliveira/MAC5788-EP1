@@ -107,6 +107,7 @@ def depthFirstSearch(problem):
         if state not in explored:
             explored.append(state)
             if problem.isGoalState(state):
+                print problem.getCostOfActions(action)
                 return action
             for st, act, cst in problem.getSuccessors(state):
                 frontier.push((st, action + [act]))
@@ -116,8 +117,9 @@ def breadthFirstSearch(problem):
     Search the shallowest nodes in the search tree first.
 
     comandos:
-    1) python pacman.py -l mediumMaze -p SearchAgent -a fn=bfs
-    2) python pacman.py -l bigMaze -p SearchAgent -a fn=bfs -z .5
+    1) python pacman.py -l tinyMaze -p SearchAgent -a fn=bfs --frameTime 0
+    2) python pacman.py -l mediumMaze -p SearchAgent -a fn=bfs --frameTime 0
+    3) python pacman.py -l bigMaze -p SearchAgent -a fn=bfs -z .5 --frameTime 0
     """
     start_state = problem.getStartState()
     frontier = util.Queue()
@@ -141,7 +143,9 @@ def uniformCostSearch(problem):
     """Search the node of least total cost first.
 
     Comando:
-    1) python pacman.py -l mediumMaze -p SearchAgent -a fn=ucs
+    1) python pacman.py -l tinyMaze -p SearchAgent -a fn=ucs --frameTime 0
+    2) python pacman.py -l mediumMaze -p SearchAgent -a fn=ucs --frameTime 0
+    3) python pacman.py -l bigMaze -p SearchAgent -a fn=ucs -z .5 --frameTime 0
 
     """
     "*** YOUR CODE HERE ***"
@@ -175,7 +179,9 @@ def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first.
 
     Comando:
-    1) python pacman.py -l bigMaze -z .5 -p SearchAgent -a fn=astar,heuristic=manhattanHeuristic
+    1) python pacman.py -l tinyMaze -z .5 -p SearchAgent -a fn=astar,heuristic=manhattanHeuristic --frameTime 0
+    1) python pacman.py -l mediumMaze -z .5 -p SearchAgent -a fn=astar,heuristic=manhattanHeuristic --frameTime 0
+    1) python pacman.py -l bigMaze -z .5 -p SearchAgent -a fn=astar,heuristic=manhattanHeuristic --frameTime 0
 
     """
     "*** YOUR CODE HERE ***"
@@ -198,11 +204,30 @@ def aStarSearch(problem, heuristic=nullHeuristic):
 
 
 def learningRealTimeAStar(problem, heuristic=nullHeuristic):
-    """Execute a number of trials of LRTA* and return the best plan found."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    """Execute a number of trials of LRTA* and return the best plan found.
 
-    # MAXTRIALS = ...
+    Comandos:
+    1) python pacman.py -l smallMaze -p SearchAgent -a fn=lrta,heuristic=manhattanHeuristic
+    2) python pacman.py -l mediumMaze -p SearchAgent -a fn=lrta,heuristic=manhattanHeuristic
+    3) python pacman.py -l bigMaze -z .5 -p SearchAgent -a fn=lrta,heuristic=manhattanHeuristic
+
+    """
+    MAXTRIALS = 100
+    heuristic_state = {}
+    state = problem.getStartState()
+    actions = []
+    heuristic_state[state] = heuristic(state, problem)
+    while not problem.isGoalState(state):
+        successors = problem.getSuccessors(state)
+        for successor in successors:
+            successor_state = successor[0]
+            heuristic_state[successor_state] = heuristic_state.get(successor_state) or heuristic(successor_state, problem)
+        s_st, s_act, s_cst = min(successors, key=lambda x: x[2] + heuristic_state.get(x[0]))
+        f_s = s_cst + heuristic_state.get(s_st)
+        heuristic_state[state] = max(heuristic_state[state], f_s)
+        actions.append(s_act)
+        state = s_st
+    return actions
     
 
 # Abbreviations 
